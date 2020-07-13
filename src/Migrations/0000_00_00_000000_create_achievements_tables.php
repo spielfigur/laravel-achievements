@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Schema;
 
 class CreateAchievementsTables extends Migration
 {
@@ -12,7 +12,6 @@ class CreateAchievementsTables extends Migration
 
     public function __construct()
     {
-
         $this->achievement_details = Config::get('achievements.table_names.details');
         $this->achievement_progress = Config::get('achievements.table_names.progress');
     }
@@ -40,8 +39,7 @@ class CreateAchievementsTables extends Migration
             $table->unsignedInteger('points')->default(0);
             $table->timestamp('unlocked_at')->nullable()->default(null);
             $table->timestamps();
-
-            $table->foreign('achievement_id')->references('id')->on('achievement_details');
+            $table->foreign('achievement_id')->references('id')->on($this->achievement_details);
         });
     }
 
@@ -52,7 +50,7 @@ class CreateAchievementsTables extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('achievement_progress');
-        Schema::dropIfExists('achievement_details');
+        Schema::dropIfExists($this->achievement_progress);
+        Schema::dropIfExists($this->achievement_details);
     }
 }

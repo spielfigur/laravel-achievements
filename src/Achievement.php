@@ -2,15 +2,14 @@
 
 namespace Gstt\Achievements;
 
-use Gstt\Achievements\Event\Unlocked as UnlockedEvent;
 use Gstt\Achievements\Event\Progress as ProgressEvent;
+use Gstt\Achievements\Event\Unlocked as UnlockedEvent;
 use Gstt\Achievements\Model\AchievementDetails;
 use Gstt\Achievements\Model\AchievementProgress;
 use Illuminate\Database\Eloquent\Builder;
 
 abstract class Achievement implements CanAchieve
 {
-
     /**
      * The unique identifier for the achievement.
      *
@@ -21,12 +20,12 @@ abstract class Achievement implements CanAchieve
     /*
      * The achievement name
      */
-    public $name = "Achievement";
+    public $name = 'Achievement';
 
     /*
      * A small description for the achievement
      */
-    public $description = "";
+    public $description = '';
 
     /**
      * The amount of points required to unlock this achievement.
@@ -56,7 +55,8 @@ abstract class Achievement implements CanAchieve
      * Wrapper for AchievementDetail::all();
      * Conveniently fetches all achievements stored in the database.
      */
-    public static function all(){
+    public static function all()
+    {
         return AchievementDetails::all();
     }
 
@@ -87,7 +87,7 @@ abstract class Achievement implements CanAchieve
      */
     public function getModel()
     {
-        if(!is_null($this->modelAttr)){
+        if (! is_null($this->modelAttr)) {
             return $this->modelAttr;
         }
 
@@ -98,7 +98,7 @@ abstract class Achievement implements CanAchieve
             $model->class_name = $this->getClassName();
         }
 
-        if(config('achievements.auto_sync') || is_null($model->name)) {
+        if (config('achievements.auto_sync') || is_null($model->name)) {
             $model->name = $this->name;
             $model->description = $this->description;
             $model->points = $this->points;
@@ -109,6 +109,7 @@ abstract class Achievement implements CanAchieve
         }
 
         $this->modelAttr = $model;
+
         return $model;
     }
 
@@ -121,7 +122,7 @@ abstract class Achievement implements CanAchieve
     public function addProgressToAchiever($achiever, $points = 1)
     {
         $progress = $this->getOrCreateProgressForAchiever($achiever);
-        if (!$progress->isUnlocked()) {
+        if (! $progress->isUnlocked()) {
             $progress->points = $progress->points + $points;
             $progress->save();
         }
@@ -137,14 +138,15 @@ abstract class Achievement implements CanAchieve
     {
         $progress = $this->getOrCreateProgressForAchiever($achiever);
 
-        if (!$progress->isUnlocked()) {
+        if (! $progress->isUnlocked()) {
             $progress->points = $points;
             $progress->save();
         }
     }
 
     /**
-     * Gets the achiever's progress data for this achievement, or creates a new one if not existant
+     * Gets the achiever's progress data for this achievement, or creates a new one if not existant.
+     *
      * @param \Illuminate\Database\Eloquent\Model $achiever
      *
      * @return AchievementProgress
@@ -156,7 +158,7 @@ abstract class Achievement implements CanAchieve
         $achievementId = $this->getModel()->id;
         $progress = AchievementProgress::where('achiever_type', $className)
                                        ->where('achievement_id', $achievementId)
-                                       ->where('achiever_id', $achiever->id)
+                                       ->where('achiever_id', $achiever->getKey())
                                        ->first();
 
         if (is_null($progress)) {
@@ -171,9 +173,10 @@ abstract class Achievement implements CanAchieve
     }
 
     /**
-     * Gets model morph name
+     * Gets model morph name.
      *
      * @param \Illuminate\Database\Eloquent\Model $achiever
+     *
      * @return string
      */
     protected function getAchieverClassName($achiever)
